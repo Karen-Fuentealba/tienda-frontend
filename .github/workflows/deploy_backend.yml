@@ -1,0 +1,33 @@
+name: Deploy Backend and DB
+
+on:
+  workflow_dispatch:   # ejecución manual
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # Ir al directorio de la aplicación en EC2
+            cd ~/app
+
+            # Traer la última versión del repo
+            git fetch --all
+            git reset --hard origin/backend
+
+            # Limpiar contenedores, volúmenes e imágenes
+            docker-compose down -v
+            docker system prune -af -y
+
+            # Levantar backend + base de datos desde cero
+            docker-compose up -d --build
