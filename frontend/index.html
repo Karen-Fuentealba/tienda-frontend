@@ -7,9 +7,75 @@
 <body>
   <h1>Bienvenido a Tienda Perritos</h1>
 
-  <!-- Botones de login -->
-  <button id="login-admin">Iniciar sesión como Administrador</button>
-  <button id="login-cliente">Iniciar sesión como Cliente</button>
+  <!-- Vista de acceso -->
+  <div id="accessView">
+    <button id="btnIniciarSesionAdmin">Iniciar sesión como Administrador</button>
+    <button id="btnIniciarSesionCliente">Iniciar sesión como Cliente</button>
+    <div id="accessStatus" class="status"></div>
+  </div>
+
+  <!-- Identidad de sesión -->
+  <div id="sessionIdentity" hidden></div>
+  <button id="btnCerrarSesion" hidden>Cerrar sesión</button>
+
+  <!-- Vista administrador -->
+  <div id="appView" hidden>
+    <h2>Gestión de Productos</h2>
+    <button id="btnCargar">Cargar Productos</button>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyProductos"></tbody>
+    </table>
+    <h3 id="formTitle">Nuevo producto</h3>
+    <input id="nombre" placeholder="Nombre">
+    <input id="descripcion" placeholder="Descripción">
+    <input id="precio" type="number" placeholder="Precio">
+    <input id="stock" type="number" placeholder="Stock">
+    <button id="btnGuardar">Guardar</button>
+    <button id="btnCancelar">Cancelar</button>
+    <div id="status" class="status"></div>
+  </div>
+
+  <!-- Vista cliente -->
+  <div id="clientView" hidden>
+    <h2>Catálogo</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyCatalogo"></tbody>
+    </table>
+
+    <h2>Pedidos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th><th>Cantidad</th><th>Precio Unitario</th><th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyPedidos"></tbody>
+    </table>
+    <div id="clienteStatus" class="status"></div>
+
+    <!-- Carrito -->
+    <div id="cartWidget" hidden>
+      <button id="btnCarrito">Carrito (<span id="cartCount">0</span>)</button>
+      <div id="cartPanel" hidden>
+        <ul id="cartItems"></ul>
+        <div id="cartEmpty">Carrito vacío</div>
+        <div id="cartTotal"></div>
+        <button id="btnConfirmarCompra">Confirmar Compra</button>
+        <button id="btnVaciarCarrito">Vaciar Carrito</button>
+        <div id="cartToast" hidden></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Librería MSAL -->
   <script src="vendor/msal-browser.min.js"></script>
@@ -18,7 +84,7 @@
   <script>
     const msalConfig = {
       auth: {
-        clientId: "TU-CLIENT-ID-SPA", // GUID del SPA en Entra ID
+        clientId: "a64dfa50-28aa-4285-b102-9d60c5d30f45", // Tu SPA
         authority: "https://Karen004V.b2clogin.com/Karen004V.onmicrosoft.com/B2C_1_signupsignin",
         redirectUri: "https://oyvhdgexqa.execute-api.us-east-1.amazonaws.com/dev"
       }
@@ -26,34 +92,43 @@
 
     const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-    async function iniciarSesion(rol) {
-      try {
-        const loginResponse = await msalInstance.loginPopup({
-          scopes: ["openid", "profile", "https://TU-API-ID/access_as_user"]
-        });
-
-        // Guardar token en localStorage
-        localStorage.setItem("token", loginResponse.accessToken);
-
-        // Redirigir según rol
-        if (rol === "admin") {
-          window.location.href = "admin.html";
-        } else {
-          window.location.href = "cliente.html";
+    const authService = {
+      async iniciarSesion(rol) {
+        try {
+          const loginResponse = await msalInstance.loginPopup({
+            scopes: ["openid", "profile"]
+          });
+          localStorage.setItem("token", loginResponse.accessToken);
+          if (rol === "admin") {
+            document.getElementById("appView").hidden = false;
+          } else {
+            document.getElementById("clientView").hidden = false;
+          }
+        } catch (error) {
+          console.error(error);
+          document.getElementById("accessStatus").textContent = "Error en login: " + error.message;
         }
-      } catch (error) {
-        console.error("Error en login:", error);
+      },
+      cerrarSesion() {
+        msalInstance.logoutPopup();
+        localStorage.removeItem("token");
+        location.reload();
       }
-    }
+    };
 
     // Conectar botones
-    document.getElementById("login-admin").addEventListener("click", () => {
-      iniciarSesion("admin");
+    document.getElementById("btnIniciarSesionAdmin").addEventListener("click", () => {
+      authService.iniciarSesion("admin");
     });
-
-    document.getElementById("login-cliente").addEventListener("click", () => {
-      iniciarSesion("cliente");
+    document.getElementById("btnIniciarSesionCliente").addEventListener("click", () => {
+      authService.iniciarSesion("cliente");
+    });
+    document.getElementById("btnCerrarSesion").addEventListener("click", () => {
+      authService.cerrarSesion();
     });
   </script>
+
+  <!-- Tu lógica de app.js -->
+  <script src="app.js"></script>
 </body>
 </html>
