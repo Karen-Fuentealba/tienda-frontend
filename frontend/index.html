@@ -81,51 +81,41 @@
   <script src="vendor/msal-browser.min.js"></script>
 
   <!-- Configuración de autenticación -->
+  <script src="authConfig.js"></script>
+
+  <!-- Servicio de autenticación -->
   <script>
-    const msalConfig = {
-      auth: {
-        clientId: "a64dfa50-28aa-4285-b102-9d60c5d30f45", // Tu SPA
-        authority: "https://Karen004V.b2clogin.com/Karen004V.onmicrosoft.com/B2C_1_signupsignin",
-        redirectUri: "https://oyvhdgexqa.execute-api.us-east-1.amazonaws.com/dev"
-      }
-    };
+    const msalAdmin = new msal.PublicClientApplication(authConfig.admin.msal);
+    const msalCliente = new msal.PublicClientApplication(authConfig.cliente.msal);
 
-    const msalInstance = new msal.PublicClientApplication(msalConfig);
+    async function iniciarSesion(rol) {
+      try {
+        const msalInstance = rol === "admin" ? msalAdmin : msalCliente;
+        const loginRequest = rol === "admin" ? authConfig.admin.loginRequest : authConfig.cliente.loginRequest;
 
-    const authService = {
-      async iniciarSesion(rol) {
-        try {
-          const loginResponse = await msalInstance.loginPopup({
-            scopes: ["openid", "profile"]
-          });
-          localStorage.setItem("token", loginResponse.accessToken);
-          if (rol === "admin") {
-            document.getElementById("appView").hidden = false;
-          } else {
-            document.getElementById("clientView").hidden = false;
-          }
-        } catch (error) {
-          console.error(error);
-          document.getElementById("accessStatus").textContent = "Error en login: " + error.message;
+        const loginResponse = await msalInstance.loginPopup(loginRequest);
+        localStorage.setItem("token", loginResponse.accessToken);
+
+        if (rol === "admin") {
+          document.getElementById("appView").hidden = false;
+        } else {
+          document.getElementById("clientView").hidden = false;
         }
-      },
-      cerrarSesion() {
-        msalInstance.logoutPopup();
-        localStorage.removeItem("token");
-        location.reload();
+      } catch (error) {
+        console.error(error);
+        document.getElementById("accessStatus").textContent = "Error en login: " + error.message;
       }
-    };
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("token");
+      location.reload();
+    }
 
     // Conectar botones
-    document.getElementById("btnIniciarSesionAdmin").addEventListener("click", () => {
-      authService.iniciarSesion("admin");
-    });
-    document.getElementById("btnIniciarSesionCliente").addEventListener("click", () => {
-      authService.iniciarSesion("cliente");
-    });
-    document.getElementById("btnCerrarSesion").addEventListener("click", () => {
-      authService.cerrarSesion();
-    });
+    document.getElementById("btnIniciarSesionAdmin").addEventListener("click", () => iniciarSesion("admin"));
+    document.getElementById("btnIniciarSesionCliente").addEventListener("click", () => iniciarSesion("cliente"));
+    document.getElementById("btnCerrarSesion").addEventListener("click", cerrarSesion);
   </script>
 
   <!-- Tu lógica de app.js -->
