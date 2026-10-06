@@ -1,7 +1,7 @@
 name: Deploy Frontend to EC2
 
 on:
-  workflow_dispatch:   # Permite ejecutar manualmente desde GitHub Actions
+  workflow_dispatch:   # Ejecutar manualmente desde GitHub Actions
 
 jobs:
   deploy:
@@ -11,15 +11,15 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
-    # Copia el proyecto al servidor EC2
-    - name: Copy project files to EC2
+    # Copia solo la carpeta frontend al servidor EC2
+    - name: Copy frontend folder to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "."
-        target: "~/tienda-perritos-frontend"
+        source: "frontend/*"
+        target: "~/tienda-perritos-frontend/frontend"
 
     # Conexión SSH para limpiar, instalar Docker y desplegar el contenedor
     - name: Deploy to EC2 via SSH
@@ -41,13 +41,24 @@ jobs:
             sudo usermod -aG docker ${{ secrets.EC2_USER }}
           fi
 
-          # Limpieza completa de contenedores e imágenes anteriores
-          sudo docker stop $(sudo docker ps -aq) || true
-          sudo docker rm $(sudo docker ps -aq) || true
-          sudo docker rmi $(sudo docker images -q) || true
+          # Limpieza segura de contenedores e imágenes
+          if [ "$(sudo docker ps -aq)" ]; then
+            sudo docker stop $(sudo docker ps -aq)
+            sudo docker rm $(sudo docker ps -aq)
+          fi
+
+          if [ "$(sudo docker images -q)" ]; then
+            sudo docker rmi $(sudo docker images -q)
+          fi
+
           sudo docker system prune -af || true
 
-          # Construye y corre el nuevo contenedor del frontend
-          cd ~/tienda-perritos-frontend
-          sudo docker build -t tienda-perritos-frontend .
-          sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
+          # Construye y corre el nuevo contenedor del frontend desde la carpeta correcta
+          cd ~/tienda-perritos-frontend/frontend
+          if [ -f Dockerfile ]; then
+            sudo docker build -t tienda-perritos-frontend .
+            sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
+          else
+            echo "❌ ERROR: No se encontró Dockerfile en ~/tienda-perritos-frontend/frontend"
+            exit 1
+          fi
