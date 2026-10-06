@@ -1,64 +1,42 @@
 name: Deploy Frontend to EC2
 
 on:
-  workflow_dispatch:   # Ejecutar manualmente desde GitHub Actions
+  workflow_dispatch:   # Permite ejecutarlo manualmente
+  push:
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    # Copia solo la carpeta frontend al servidor EC2
-    - name: Copy frontend folder to EC2
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        source: "frontend/*"
-        target: "~/tienda-perritos-frontend/frontend"
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    # Conexión SSH para limpiar, instalar Docker y desplegar el contenedor
-    - name: Deploy to EC2 via SSH
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          # Actualiza paquetes
-          sudo apt-get update -y
+      - name: Copy project files to EC2
+        run: |
+          rsync -avz --delete ./frontend ubuntu@${{ secrets.EC2_HOST }}:~/tienda-perritos-frontend/
 
-          # Instala Docker si no está instalado
-          if ! command -v docker &> /dev/null
-          then
-            sudo apt-get install -y docker.io
-            sudo systemctl enable docker
-            sudo systemctl start docker
-            sudo usermod -aG docker ${{ secrets.EC2_USER }}
-          fi
-
-          # Limpieza segura de contenedores e imágenes
-          if [ "$(sudo docker ps -aq)" ]; then
-            sudo docker stop $(sudo docker ps -aq)
-            sudo docker rm $(sudo docker ps -aq)
-          fi
-
-          if [ "$(sudo docker images -q)" ]; then
-            sudo docker rmi $(sudo docker images -q)
-          fi
-
-          sudo docker system prune -af || true
-
-          # Construye y corre el nuevo contenedor del frontend desde la carpeta correcta
+      - name: Build Docker image on EC2 (no cache)
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           cd ~/tienda-perritos-frontend/frontend
-          if [ -f Dockerfile ]; then
-            sudo docker build -t tienda-perritos-frontend .
-            sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
-          else
-            echo "❌ ERROR: No se encontró Dockerfile en ~/tienda-perritos-frontend/frontend"
-            exit 1
-          fi
+          # Construir imagen sin caché para evitar configuraciones viejas
+          sudo docker build --no-cache -t tienda-perritos-frontend .
+          # Eliminar contenedor viejo si existe
+          sudo docker rm -f frontend || true
+          # Levantar contenedor nuevo en puerto 80
+          sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
+          # Mostrar estado de contenedores
+          sudo docker ps -a
+          EOF
+
+      - name: Test container response
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          curl -I localhost:80 || true
+          EOF
