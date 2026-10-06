@@ -7,7 +7,7 @@
 
 //const API_BASE = "/api/productos";
 
-const API_BASE = "https://oyvhdgexqa.execute-api.us-east-1.amazonaws.com/dev/api/productos";
+const API_BASE = "https://oyvhdgexqa.execute-api.us-east-1.amazonaws.com/dev";
 const PRODUCTOS_API = `${API_BASE}/api/productos`;
 const PEDIDOS_API   = `${API_BASE}/api/pedidos`;
 
