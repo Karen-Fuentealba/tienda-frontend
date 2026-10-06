@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tienda de Alimentos para Perritos &#128054;</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+    header {
+      background: #3b82f6;
+      color: white;
+      padding: 16px;
+      text-align: center;
+      position: relative;
+    }
+    .cart-widget {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      text-align: left;
+    }
+    .cart-widget[hidden] {
+      display: none;
+    }
+    .cart-widget > button {
+      background: white;
+      color: #1d4ed8;
+      font-weight: bold;
+      margin-right: 0;
+    }
+    .cart-panel {
+      position: absolute;
+      right: 0;
+      top: 44px;
+      width: 340px;
+      max-width: 90vw;
+      background: white;
+      color: #111827;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      padding: 12px;
+      z-index: 10;
+    }
+    .cart-panel[hidden] {
+      display: none;
+    }
+    .cart-panel h3 {
+      margin: 0 0 8px;
+    }
+    .cart-items {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .cart-items li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+    }
+    .cart-items button {
+      padding: 4px 8px;
+      margin-right: 0;
+    }
+    .cart-empty {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    .cart-total {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .cart-toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #16a34a;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      z-index: 20;
+    }
+    .cart-toast[hidden] {
+      display: none;
+    }
+    main {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      margin-top: 0;
+    }
+    .actions {
+      margin-bottom: 16px;
+    }
+    button {
+      padding: 8px 16px;
+      margin-right: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #3b82f6;
+      color: white;
+    }
+    button.secondary {
+      background: #6b7280;
+    }
+    button.danger {
+      background: #ef4444;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #e5e7eb;
+    }
+    tr:nth-child(even) {
+      background: #f9fafb;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      box-sizing: border-box;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .status.ok {
+      color: #16a34a;
+    }
+    .status.error {
+      color: #dc2626;
+    }
+    .access-view {
+      min-height: 280px;
+      display: grid;
+      place-items: center;
+    }
+    #accessView[hidden] {
+      display: none;
+    }
+    .access-view button {
+      font-size: 1rem;
+      padding: 12px 20px;
+    }
+    #appView[hidden] {
+      display: none;
+    }
+    #clientView[hidden] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tienda de Alimentos para Perritos &#128054;</h1>
+    <p>Gestión CRUD de productos en contenedores Docker (Frontend + Backend + MySQL)</p>
+    <p id="sessionIdentity" hidden></p>
+    <button id="btnCerrarSesion" type="button" hidden>Cerrar sesión</button>
+    <div id="cartWidget" class="cart-widget" hidden>
+      <button id="btnCarrito" type="button" aria-expanded="false" aria-controls="cartPanel">&#128722; Carrito (<span id="cartCount">0</span>)</button>
+      <div id="cartPanel" class="cart-panel" hidden>
+        <h3>Carrito de Compras</h3>
+        <ul id="cartItems" class="cart-items"></ul>
+        <p id="cartEmpty" class="cart-empty">No hay productos en el carrito.</p>
+        <div id="cartTotal" class="cart-total"></div>
+        <button id="btnConfirmarCompra" type="button">Confirmar compra</button>
+        <button id="btnVaciarCarrito" type="button" class="secondary">Vaciar</button>
+      </div>
+    </div>
+  </header>
+  <div id="cartToast" class="cart-toast" role="status" hidden>Producto Agregado al Carrito de Compras</div>
+  <main>
+    <section id="accessView" class="access-view">
+      <div class="actions">
+        <button id="btnIniciarSesionAdmin" type="button">Iniciar sesión administrador</button>
+        <button id="btnIniciarSesionCliente" type="button" class="secondary">Iniciar sesión cliente</button>
+      </div>
+      <div id="accessStatus" class="status" role="alert"></div>
+    </section>
+
+    <div id="appView" hidden>
+      <section>
+      <h2>Administración de productos</h2>
+      <div class="actions">
+        <button id="btnCargar">Cargar Productos</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyProductos">
+          <!-- Aqu�� se insertan filas dinamicamente -->
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2 id="formTitle">Nuevo producto</h2>
+      <div class="form-grid">
+        <div>
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" placeholder="Ej: Alimento Premium Cachorro" />
+        </div>
+        <div>
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" rows="2" placeholder="Ej: Sabor pollo, razas pequeñas"></textarea>
+        </div>
+        <div>
+          <label for="precio">Precio</label>
+          <input type="number" id="precio" step="0.01" min="0" placeholder="Ej: 19990" />
+        </div>
+        <div>
+          <label for="stock">Stock</label>
+          <input type="number" id="stock" min="0" placeholder="Ej: 10" />
+        </div>
+      </div>
+      <div class="actions" style="margin-top: 12px;">
+        <button id="btnGuardar">Guardar</button>
+        <button id="btnCancelar" class="secondary">Cancelar</button>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+    </div>
+
+    <div id="clientView" hidden>
+      <section>
+        <h2>Catálogo de Productos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyCatalogo"></tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Historial de pedidos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyPedidos"></tbody>
+        </table>
+        <div id="clienteStatus" class="status"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="vendor/msal-browser.min.js?v=5"></script>
+  <script src="authConfig.js?v=5"></script>
+  <script src="authService.js?v=5"></script>
+  <script src="app.js?v=5"></script>
+</body>
+</html>

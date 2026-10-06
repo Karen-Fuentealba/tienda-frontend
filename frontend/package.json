@@ -1,0 +1,7 @@
+{
+  "name": "tienda-perritos-frontend",
+  "private": true,
+  "dependencies": {
+    "@azure/msal-browser": "3.30.0"
+  }
+}
