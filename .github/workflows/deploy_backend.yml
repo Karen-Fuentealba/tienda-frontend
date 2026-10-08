@@ -18,16 +18,31 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Ir al directorio de la aplicación en EC2
-            cd ~/app
+            # Actualizar paquetes
+            sudo apt-get update -y
 
-            # Traer la última versión del repo (rama backend)
-            git fetch --all
-            git reset --hard origin/backend
+            # Instalar Docker y docker-compose si no están
+            sudo apt-get install -y docker.io docker-compose git
 
-            # Limpiar contenedores, volúmenes e imágenes
-            docker-compose down -v
-            docker system prune -af -y
+            # Habilitar y arrancar Docker
+            sudo systemctl enable docker
+            sudo systemctl start docker
+
+            # Limpiar contenedores, volúmenes e imágenes previas
+            sudo docker-compose down -v || true
+            sudo docker system prune -af -y || true
+
+            # Eliminar carpeta anterior del proyecto
+            rm -rf /home/ubuntu/backend-app
+
+            # Clonar el repositorio desde GitHub
+            git clone https://github.com/<TU-USUARIO>/<TU-REPO>.git /home/ubuntu/backend-app
+
+            # Ir al directorio del backend
+            cd /home/ubuntu/backend-app
+
+            # Cambiar a la rama backend
+            git checkout backend
 
             # Levantar backend + base de datos desde cero
-            docker-compose up -d --build
+            sudo docker-compose up -d --build
