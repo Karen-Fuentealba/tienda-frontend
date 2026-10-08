@@ -1,42 +1,37 @@
-name: Deploy Frontend to EC2
+name: Frontend CI/CD
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:   # ejecución manual
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout código
         uses: actions/checkout@v3
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+          node-version: '18'
 
-      - name: Add EC2 host to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Instalar dependencias
+        run: npm install
 
-      - name: Copy project files to EC2
-        run: |
-          rsync -avz --delete ./frontend ubuntu@${{ secrets.EC2_HOST }}:~/tienda-perritos-frontend/
+      - name: Compilar aplicación frontend
+        run: npm run build
 
-      - name: Build Docker image on EC2 (no cache)
-        run: |
-          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/tienda-perritos-frontend/frontend
-          sudo docker build --no-cache -t tienda-perritos-frontend .
-          sudo docker rm -f frontend || true
-          sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
-          sudo docker ps -a
-          EOF
+      - name: Subir artefacto
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-frontend
+          path: build/
 
-      - name: Test container response
+      - name: Deploy en servidor
         run: |
-          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          curl -I localhost:80 || true
-          EOF
+          echo "Desplegando frontend..."
+          # Aquí iba el paso de copia/sincronización al servidor o contenedor
