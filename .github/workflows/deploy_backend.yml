@@ -1,48 +1,42 @@
-name: Deploy Backend and DB
+name: Deploy Backend to EC2
 
 on:
-  workflow_dispatch:   # ejecución manual
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Deploy to EC2 Backend
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
         with:
-          host: ${{ secrets.EC2_HOST_BACKEND }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            # Actualizar paquetes
-            sudo apt-get update -y
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-            # Instalar Docker y docker-compose si no están
-            sudo apt-get install -y docker.io docker-compose git
+      - name: Add EC2 host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST_BACKEND }} >> ~/.ssh/known_hosts
 
-            # Habilitar y arrancar Docker
-            sudo systemctl enable docker
-            sudo systemctl start docker
+      - name: Copy backend project files to EC2
+        run: |
+          rsync -avz --delete ./backend ubuntu@${{ secrets.EC2_HOST_BACKEND }}:~/tienda-perritos-backend/
 
-            # Limpiar contenedores, volúmenes e imágenes previas
-            sudo docker-compose down -v || true
-            sudo docker system prune -af -y || true
+      - name: Build and run backend with docker-compose
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST_BACKEND }} << 'EOF'
+          cd ~/tienda-perritos-backend
+          sudo docker compose down -v || true
+          sudo docker system prune -af --force || true
+          sudo docker compose up -d --build
+          sudo docker ps -a
+          EOF
 
-            # Eliminar carpeta anterior del proyecto
-            rm -rf /home/ubuntu/backend-app
-
-            # Clonar el repositorio desde GitHub
-            git clone https://github.com/<TU-USUARIO>/<TU-REPO>.git /home/ubuntu/backend-app
-
-            # Ir al directorio del backend
-            cd /home/ubuntu/backend-app
-
-            # Cambiar a la rama backend
-            git checkout backend
-
-            # Levantar backend + base de datos desde cero
-            sudo docker-compose up -d --build
+      - name: Test backend response
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST_BACKEND }} << 'EOF'
+          curl -I localhost:3001 || true
+          EOF
