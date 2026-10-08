@@ -1,37 +1,31 @@
-name: Frontend CI/CD
+name: Deploy Frontend to EC2
 
 on:
-  workflow_dispatch:   # ejecución manual
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout código
-        uses: actions/checkout@v3
-
-      - name: Configurar Node.js
-        uses: actions/setup-node@v3
         with:
-          node-version: '18'
-
-      - name: Instalar dependencias
-        run: npm install
-
-      - name: Compilar aplicación frontend
-        run: npm run build
-
-      - name: Subir artefacto
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-frontend
-          path: build/
-
-      - name: Deploy en servidor
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+     - name: Add EC2 host to known_hosts
         run: |
-          echo "Desplegando frontend..."
-          # Aquí iba el paso de copia/sincronización al servidor o contenedor
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Copy project files to EC2
+        run: |
+          rsync -avz --delete ./frontend ubuntu@${{ secrets.EC2_HOST }}:~/tienda-perritos-frontend/
+
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          cd ~/tienda-perritos-frontend/frontend
+
+          sudo docker build --no-cache -t tienda-perritos-frontend .
+
+          sudo docker rm -f frontend || true
+
+          sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
+
+          sudo docker ps -a
+          EOF
