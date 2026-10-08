@@ -2,13 +2,17 @@ name: Deploy Frontend to EC2
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   build-and-deploy:
-@@ -17,6 +19,11 @@ jobs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
@@ -20,16 +24,19 @@ jobs:
       - name: Copy project files to EC2
         run: |
           rsync -avz --delete ./frontend ubuntu@${{ secrets.EC2_HOST }}:~/tienda-perritos-frontend/
-@@ -25,13 +32,9 @@ jobs:
+
+      - name: Build Docker image on EC2 (no cache)
         run: |
           ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           cd ~/tienda-perritos-frontend/frontend
-
           sudo docker build --no-cache -t tienda-perritos-frontend .
-
           sudo docker rm -f frontend || true
-
           sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
-
           sudo docker ps -a
+          EOF
+
+      - name: Test container response
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          curl -I localhost:80 || true
           EOF
