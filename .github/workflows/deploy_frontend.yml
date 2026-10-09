@@ -1,5 +1,9 @@
 name: Deploy Frontend to EC2
 
+# >>> COMPLETAR (GitHub): crea estos secrets en GitHub > Settings > Secrets and variables > Actions:
+#   EC2_SSH_KEY = contenido COMPLETO del archivo .pem (clave privada) de la EC2 (incluye BEGIN/END).
+#   EC2_HOST    = IP pública (o DNS público) de la EC2 del frontend. AWS > EC2 > Instances > "Public IPv4 address".
+# Antes de desplegar, completa los valores REEMPLAZAR_* de frontend/app.js y frontend/authConfig.js.
 on:
   workflow_dispatch:
 
@@ -9,10 +13,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.4
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
@@ -23,20 +27,27 @@ jobs:
 
       - name: Copy project files to EC2
         run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} "mkdir -p ~/tienda-perritos-frontend"
           rsync -avz --delete ./frontend ubuntu@${{ secrets.EC2_HOST }}:~/tienda-perritos-frontend/
 
       - name: Build Docker image on EC2 (no cache)
         run: |
           ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          set -e
           cd ~/tienda-perritos-frontend/frontend
+          sudo apt-get update -y
+          sudo apt-get install -y docker.io
+          sudo systemctl enable docker
+          sudo systemctl start docker
           sudo docker build --no-cache -t tienda-perritos-frontend .
           sudo docker rm -f frontend || true
-          sudo docker run -d --name frontend -p 80:80 tienda-perritos-frontend
+          sudo docker run -d --name frontend --restart always -p 80:80 tienda-perritos-frontend
           sudo docker ps -a
           EOF
 
       - name: Test container response
         run: |
           ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          curl -I localhost:80 || true
+          sleep 3
+          curl -fsSI localhost:80
           EOF
