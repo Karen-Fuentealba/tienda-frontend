@@ -2,7 +2,12 @@
  * Frontend simple para CRUD de productos de la tienda de perritos.
  */
 
-//const API_BASE = "https://oyvhdgexqa.execute-api.us-east-1.amazonaws.com/dev";
+// >>> COMPLETAR (AWS): URL base de tu API Gateway, SIN "/api" y SIN barra final.
+// Formato: https://<API_ID>.execute-api.<REGION>.amazonaws.com/<STAGE>
+// Se obtiene en AWS Console > API Gateway > tu API > Stages > <stage> > "Invoke URL".
+// Ejemplo: https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev
+// Las rutas /api/productos y /api/pedidos se agregan abajo; no las pongas aquí.
+const API_BASE = "https://REEMPLAZAR_API_ID.execute-api.us-east-1.amazonaws.com/dev";
 const PRODUCTOS_API = `${API_BASE}/api/productos`;
 const PEDIDOS_API   = `${API_BASE}/api/pedidos`;
 
