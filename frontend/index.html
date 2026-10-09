@@ -83,40 +83,8 @@
   <!-- Configuración de autenticación -->
   <script src="authConfig.js"></script>
 
-  <!-- Servicio de autenticación -->
-  <script>
-    const msalAdmin = new msal.PublicClientApplication(authConfig.admin.msal);
-    const msalCliente = new msal.PublicClientApplication(authConfig.cliente.msal);
-
-    async function iniciarSesion(rol) {
-      try {
-        const msalInstance = rol === "admin" ? msalAdmin : msalCliente;
-        const loginRequest = rol === "admin" ? authConfig.admin.loginRequest : authConfig.cliente.loginRequest;
-
-        const loginResponse = await msalInstance.loginPopup(loginRequest);
-        localStorage.setItem("token", loginResponse.accessToken);
-
-        if (rol === "admin") {
-          document.getElementById("appView").hidden = false;
-        } else {
-          document.getElementById("clientView").hidden = false;
-        }
-      } catch (error) {
-        console.error(error);
-        document.getElementById("accessStatus").textContent = "Error en login: " + error.message;
-      }
-    }
-
-    function cerrarSesion() {
-      localStorage.removeItem("token");
-      location.reload();
-    }
-
-    // Conectar botones
-    document.getElementById("btnIniciarSesionAdmin").addEventListener("click", () => iniciarSesion("admin"));
-    document.getElementById("btnIniciarSesionCliente").addEventListener("click", () => iniciarSesion("cliente"));
-    document.getElementById("btnCerrarSesion").addEventListener("click", cerrarSesion);
-  </script>
+  <!-- Servicio de autenticación (MSAL, Entra ID interno y External ID) -->
+  <script src="authService.js"></script>
 
   <!-- Tu lógica de app.js -->
   <script src="app.js"></script>
