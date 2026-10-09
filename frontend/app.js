@@ -2,7 +2,7 @@
  * Frontend simple para CRUD de productos de la tienda de perritos.
  */
 
-const API_BASE = "https://34.202.142.177.oyvhdgexqa.execute-api.us-east-1.amazonaws.com/dev";
+const API_BASE = "https://34.202.142.177:80.oyvhdgexqa.execute-api.us-east-1.amazonaws.com";
 const PRODUCTOS_API = `${API_BASE}/api/productos`;
 const PEDIDOS_API   = `${API_BASE}/api/pedidos`;
 
