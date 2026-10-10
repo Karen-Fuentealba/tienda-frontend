@@ -38,7 +38,7 @@ const authConfig = {
       // Puede ser la misma que la SPA si expusiste el scope "access_as_user" en esa misma app.
       // Debe coincidir con AAD_AUDIENCE del backend.
       // Scope creado en: App registrations > <app API> > Expose an API > Add a scope.
-      scopes: ["openid", "profile", "email", "api://REEMPLAZAR_CLIENT_ID_API_ADMIN/access_as_user"],
+      scopes: ["openid", "profile", "email", "api://867cb7d6-fb20-4444-a63a-091a278be14d/access_as_user"],     // "api://REEMPLAZAR_CLIENT_ID_API_ADMIN/access_as_user"], HECHO
     },
   },
   cliente: {
