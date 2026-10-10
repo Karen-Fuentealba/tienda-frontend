@@ -13,7 +13,7 @@
 // Ejemplo: "https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/"
 // Debe ser EXACTAMENTE la misma que registres como "Redirect URI" (tipo SPA) en las dos apps de Azure.
 // Azure solo acepta http:// para localhost; en AWS necesitas https (por eso se usa API Gateway).
-const FRONTEND_URL = "https://REEMPLAZAR_API_ID.execute-api.us-east-1.amazonaws.com/dev/";
+const FRONTEND_URL = "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/";  // "https://REEMPLAZAR_API_ID.execute-api.us-east-1.amazonaws.com/dev/"; YA HECHO
 
 const authConfig = {
   admin: {
@@ -24,8 +24,8 @@ const authConfig = {
         clientId: "9c61f329-5d50-41a9-be4d-557d53935f70",              //"REEMPLAZAR_CLIENT_ID_SPA_ADMIN", YA HECHO!!
         // >>> COMPLETAR (Azure, tenant interno): "Directory (tenant) ID".
         // Portal Azure > Microsoft Entra ID > Overview > Tenant ID. Debe ser el mismo valor de AAD_TENANT_ID del backend.
-        authority: "https://login.microsoftonline.com/9c61f329-5d50-41a9-be4d-557d53935f70", //REEMPLAZAR_TENANT_ID_INTERNO",
-        redirectUri: https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login, //FRONTEND_URL,
+        authority: "https://login.microsoftonline.com/9c61f329-5d50-41a9-be4d-557d53935f70", //REEMPLAZAR_TENANT_ID_INTERNO", YA HECHO
+        redirectUri: "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login", //FRONTEND_URL,
         postLogoutRedirectUri: FRONTEND_URL,
       },
       cache: {
