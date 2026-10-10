@@ -7,6 +7,44 @@ const PRODUCTOS_API = `${API_BASE}/api/productos`;
 const PEDIDOS_API   = `${API_BASE}/api/pedidos`;
 
 let editandoId = null;
+//se agrega:
+// 🔹 Conectar botones de login con authService
+document.getElementById("btnIniciarSesionAdmin")
+  .addEventListener("click", () => {
+    authService.iniciarSesion("admin");
+  });
+
+document.getElementById("btnIniciarSesionCliente")
+  .addEventListener("click", () => {
+    authService.iniciarSesion("cliente");
+  });
+
+// 🔹 Inicializar autenticación al cargar la página
+window.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const cuenta = await authService.inicializarAutenticacion();
+    if (cuenta) {
+      console.log("Usuario autenticado:", cuenta.username);
+      // Aquí podrías mostrar la vista de productos o pedidos
+      await cargarProductos(); // ejemplo de uso
+    } else {
+      console.log("No hay sesión activa.");
+    }
+  } catch (error) {
+    console.error("Error al inicializar autenticación:", error);
+  }
+});
+
+// 🔹 Ejemplo de cómo usar el token para llamar al backend
+async function cargarProductos() {
+  const token = await authService.obtenerTokenDeAcceso();
+  const response = await fetch(PRODUCTOS_API, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const productos = await response.json();
+  console.log("Productos:", productos);
+}
+//------------------------------------------------------
 
 const tbody = document.getElementById("tbodyProductos");
 const btnCargar = document.getElementById("btnCargar");
