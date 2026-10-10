@@ -1,35 +1,13 @@
-// =====================================================================
-// Configuración de autenticación (MSAL.js) para Tienda Perritos.
-//
-//  - "admin"   -> Microsoft Entra ID (tenant interno / workforce).
-//  - "cliente" -> Microsoft Entra External ID (tenant externo / customers, dominio ciamlogin.com).
-//
-// Todos los valores marcados con ">>> COMPLETAR" salen del portal de Azure.
-// El paso a paso está en GUIA_DESPLIEGUE.md.
-// =====================================================================
-
-// >>> COMPLETAR (AWS): URL pública HTTPS desde la que se sirve el frontend, TERMINADA EN "/".
-// Es la "Invoke URL" de API Gateway + "/" (API Gateway > tu API > Stages > <stage>).
-// Ejemplo: "https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/"
-// Debe ser EXACTAMENTE la misma que registres como "Redirect URI" (tipo SPA) en las dos apps de Azure.
-// Azure solo acepta http:// para localhost; en AWS necesitas https (por eso se usa API Gateway).
+// URL pública HTTPS del frontend (Redirect URI registrada en Azure)
 const FRONTEND_URL = "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login";
-
-//"https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/";  // "https://REEMPLAZAR_API_ID.execute-api.us-east-1.amazonaws.com/dev/"; YA HECHO
 
 const authConfig = {
   admin: {
     msal: {
       auth: {
-        // >>> COMPLETAR (Azure, tenant interno): "Application (client) ID" de la app registrada para la SPA.
-        // Portal Azure > Microsoft Entra ID > App registrations > <tu app SPA> > Overview.
-        clientId: "9c61f329-5d50-41a9-be4d-557d53935f70",              //"REEMPLAZAR_CLIENT_ID_SPA_ADMIN", YA HECHO!!
-        // >>> COMPLETAR (Azure, tenant interno): "Directory (tenant) ID".
-        // Portal Azure > Microsoft Entra ID > Overview > Tenant ID. Debe ser el mismo valor de AAD_TENANT_ID del backend.
-        authority: "https://login.microsoftonline.com/ea6b8b9d-33ce-49ad-95e6-551bce054fe7", //REEMPLAZAR_TENANT_ID_INTERNO", YA HECHO
-      //  redirectUri: redirectUri: "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login",
-        redirectUri: FRONTEND_URL,
- // FRONTEND_URL, // "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login", //FRONTEND_URL,
+        clientId: "9c61f329-5d50-41a9-be4d-557d53935f70", // SPA
+        authority: "https://login.microsoftonline.com/ea6b8b9d-33ce-49ad-95e6-551bce054fe7", // Tenant interno
+        redirectUri: FRONTEND_URL, // debe coincidir EXACTO con lo registrado en Azure
         postLogoutRedirectUri: FRONTEND_URL,
       },
       cache: {
@@ -38,13 +16,15 @@ const authConfig = {
       },
     },
     loginRequest: {
-      // >>> COMPLETAR (Azure, tenant interno): "Application (client) ID" de la app que expone la API (la del backend).
-      // Puede ser la misma que la SPA si expusiste el scope "access_as_user" en esa misma app.
-      // Debe coincidir con AAD_AUDIENCE del backend.
-      // Scope creado en: App registrations > <app API> > Expose an API > Add a scope.
-      scopes: ["openid", "profile", "email", "api://867cb7d6-fb20-4444-a63a-091a278be14d/access_as_user"], //"api://9c61f329-5d50-41a9-be4d-557d53935f70/access_as_user"],     // "api://REEMPLAZAR_CLIENT_ID_API_ADMIN/access_as_user"], HECHO
-      },
+      scopes: [
+        "openid",
+        "profile",
+        "email",
+        "api://867cb7d6-fb20-4444-a63a-091a278be14d/access_as_user"
+      ],
+    },
   },
+   
   cliente: {
     msal: {
       auth: {
