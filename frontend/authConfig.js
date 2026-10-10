@@ -21,11 +21,11 @@ const authConfig = {
       auth: {
         // >>> COMPLETAR (Azure, tenant interno): "Application (client) ID" de la app registrada para la SPA.
         // Portal Azure > Microsoft Entra ID > App registrations > <tu app SPA> > Overview.
-        clientId: "REEMPLAZAR_CLIENT_ID_SPA_ADMIN",
+        clientId: "9c61f329-5d50-41a9-be4d-557d53935f70",              //"REEMPLAZAR_CLIENT_ID_SPA_ADMIN", YA HECHO!!
         // >>> COMPLETAR (Azure, tenant interno): "Directory (tenant) ID".
         // Portal Azure > Microsoft Entra ID > Overview > Tenant ID. Debe ser el mismo valor de AAD_TENANT_ID del backend.
-        authority: "https://login.microsoftonline.com/REEMPLAZAR_TENANT_ID_INTERNO",
-        redirectUri: FRONTEND_URL,
+        authority: "https://login.microsoftonline.com/9c61f329-5d50-41a9-be4d-557d53935f70", //REEMPLAZAR_TENANT_ID_INTERNO",
+        redirectUri: https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login, //FRONTEND_URL,
         postLogoutRedirectUri: FRONTEND_URL,
       },
       cache: {
