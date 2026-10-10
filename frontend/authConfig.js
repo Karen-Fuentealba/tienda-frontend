@@ -24,7 +24,7 @@ const authConfig = {
         clientId: "9c61f329-5d50-41a9-be4d-557d53935f70",              //"REEMPLAZAR_CLIENT_ID_SPA_ADMIN", YA HECHO!!
         // >>> COMPLETAR (Azure, tenant interno): "Directory (tenant) ID".
         // Portal Azure > Microsoft Entra ID > Overview > Tenant ID. Debe ser el mismo valor de AAD_TENANT_ID del backend.
-        authority: "https://login.microsoftonline.com/9c61f329-5d50-41a9-be4d-557d53935f70", //REEMPLAZAR_TENANT_ID_INTERNO", YA HECHO
+        authority: "https://login.microsoftonline.com/ea6b8b9d-33ce-49ad-95e6-551bce054fe7", //REEMPLAZAR_TENANT_ID_INTERNO", YA HECHO
         redirectUri: "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login", //FRONTEND_URL,
         postLogoutRedirectUri: FRONTEND_URL,
       },
