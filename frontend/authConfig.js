@@ -25,7 +25,7 @@ const authConfig = {
         // >>> COMPLETAR (Azure, tenant interno): "Directory (tenant) ID".
         // Portal Azure > Microsoft Entra ID > Overview > Tenant ID. Debe ser el mismo valor de AAD_TENANT_ID del backend.
         authority: "https://login.microsoftonline.com/ea6b8b9d-33ce-49ad-95e6-551bce054fe7", //REEMPLAZAR_TENANT_ID_INTERNO", YA HECHO
-        redirectUri: redirectUri: FRONTEND_URL // "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login", //FRONTEND_URL,
+        redirectUri: redirectUri: FRONTEND_URL, // "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod/login", //FRONTEND_URL,
         postLogoutRedirectUri: FRONTEND_URL,
       },
       cache: {
@@ -38,7 +38,7 @@ const authConfig = {
       // Puede ser la misma que la SPA si expusiste el scope "access_as_user" en esa misma app.
       // Debe coincidir con AAD_AUDIENCE del backend.
       // Scope creado en: App registrations > <app API> > Expose an API > Add a scope.
-      scopes: ["openid", "profile", "email", "api://9c61f329-5d50-41a9-be4d-557d53935f70/access_as_user"],   //"api://867cb7d6-fb20-4444-a63a-091a278be14d/access_as_user"],     // "api://REEMPLAZAR_CLIENT_ID_API_ADMIN/access_as_user"], HECHO
+      scopes: ["openid", "profile", "email", "api://867cb7d6-fb20-4444-a63a-091a278be14d/access_as_user"], //"api://9c61f329-5d50-41a9-be4d-557d53935f70/access_as_user"],     // "api://REEMPLAZAR_CLIENT_ID_API_ADMIN/access_as_user"], HECHO
       },
   },
   cliente: {
