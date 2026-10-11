@@ -9,7 +9,7 @@
 // =====================================================================
 
 // URL pública HTTPS del frontend (Redirect URI registrada en Azure)
-const FRONTEND_URL = "https://c5ipa4zw2f.execute-api.us-east-1.amazonaws.com/prod";
+const FRONTEND_URL = "https://21009y3jsk.execute-api.us-east-1.amazonaws.com/api/health";
 
 const authConfig = {
   admin: {
