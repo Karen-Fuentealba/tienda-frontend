@@ -17,8 +17,8 @@ const authConfig = {
       auth: {
         clientId: "9c61f329-5d50-41a9-be4d-557d53935f70", // SPA interna
         authority: "https://login.microsoftonline.com/ea6b8b9d-33ce-49ad-95e6-551bce054fe7", // Tenant interno
-        redirectUri: "https://21009y3jsk.execute-api.us-east-1.amazonaws.com/dev/api", // debe coincidir EXACTO con lo registrado en Azure
-        postLogoutRedirectUri: "https://21009y3jsk.execute-api.us-east-1.amazonaws.com/dev/api",
+        redirectUri: FRONTEND_URL, // debe coincidir EXACTO con lo registrado en Azure
+        postLogoutRedirectUri: FRONTEND_URL,
       },
       cache: {
         cacheLocation: "localStorage",
