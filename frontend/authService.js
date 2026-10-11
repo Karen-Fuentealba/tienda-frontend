@@ -1,9 +1,11 @@
 const accessTokenKey = "tienda-perritos.accessToken";
 const identityProviderKey = "tienda-perritos.identityProvider";
-const msalInstances = {
+
+window.msalInstances = {
   admin: new msal.PublicClientApplication(authConfig.admin.msal),
-//  cliente: new msal.PublicClientApplication(authConfig.cliente.msal),
+  // cliente: new msal.PublicClientApplication(authConfig.cliente.msal),
 };
+
 const initializationPromises = {};
 
 function obtenerProveedor() {
