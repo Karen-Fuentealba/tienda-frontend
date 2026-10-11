@@ -9,7 +9,10 @@
 // =====================================================================
 
 // URL pública HTTPS del frontend (Redirect URI registrada en Azure)
+console.log("authService cargado");
+
 const FRONTEND_URL = "https://21009y3jsk.execute-api.us-east-1.amazonaws.com/dev/api";
+console.log("authService cargado");
 
 const authConfig = {
   admin: {
