@@ -1,3 +1,4 @@
+console.log("authService cargado");
 const accessTokenKey = "tienda-perritos.accessToken";
 const identityProviderKey = "tienda-perritos.identityProvider";
 
