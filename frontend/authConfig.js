@@ -12,7 +12,7 @@
 
 const FRONTEND_URL = "https://21009y3jsk.execute-api.us-east-1.amazonaws.com/dev";
 
-const authConfig = {
+/*const authConfig = {
   admin: {
     msal: {
       auth: {
@@ -34,7 +34,27 @@ const authConfig = {
         "api://867cb7d6-fb20-4444-a63a-091a278be14d/access_as_user" // scope expuesto en la API
       ],
     },
-  },
+  }, */
+const authConfig = {
+  admin: {
+    msal: {
+      auth: {
+        clientId: "9c61f329-5d50-41a9-be4d-557d53935f70", // AAD_AUDIENCE
+        authority: "https://login.microsoftonline.com/ea6b8b9d-33ce-49ad-95e6-551bce054fe7", // AAD_TENANT_ID
+        redirectUri: "http://34.202.142.177/",
+        postLogoutRedirectUri: "http://34.202.142.177/"
+      }
+    },
+    loginRequest: {
+      scopes: [
+        "api://9c61f329-5d50-41a9-be4d-557d53935f70/access_as_user"
+      ]
+    }
+  }
+};
+
+
+
 const authConfig = {
   cliente: {
     msal: {
