@@ -35,6 +35,22 @@ const authConfig = {
       ],
     },
   },
+const authConfig = {
+  cliente: {
+    msal: {
+      auth: {
+        clientId: "1f5523aa-a8f7-4fe2-b3f9-0de78f21adbc", // AAD_EXTERNAL_AUDIENCE
+        authority: "https://karen004v.ciamlogin.com/b5253255-4e61-4557-bf3f-661f8dc60447", // dominio CIAM + Tenant externo
+        knownAuthorities: ["karen004v.ciamlogin.com"], // tu subdominio CIAM
+        redirectUri: "http://34.202.142.177/",
+        postLogoutRedirectUri: "http://34.202.142.177/"
+      }
+    },
+    loginRequest: {
+      scopes: ["openid", "profile", "email", "api://1f5523aa-a8f7-4fe2-b3f9-0de78f21adbc/access_as_user_client"]
+    }
+  }
+};
 
   /*
   cliente: {
